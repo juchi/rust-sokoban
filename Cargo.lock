@@ -1,0 +1,21 @@
+[root]
+name = "sokoban"
+version = "0.0.1"
+dependencies = [
+ "sdl2 0.0.1-alpha.1 (git+https://github.com/AngryLawyer/rust-sdl2#99c95bd85641234b29b361000681e9df132b5529)",
+ "sdl2_image 0.0.1-alpha.1 (git+https://github.com/xsleonard/rust-sdl2_image#6113f8969782648a9c5043674452889ceb79da11)",
+]
+
+[[package]]
+name = "sdl2"
+version = "0.0.1-alpha.1"
+source = "git+https://github.com/AngryLawyer/rust-sdl2#99c95bd85641234b29b361000681e9df132b5529"
+
+[[package]]
+name = "sdl2_image"
+version = "0.0.1-alpha.1"
+source = "git+https://github.com/xsleonard/rust-sdl2_image#6113f8969782648a9c5043674452889ceb79da11"
+dependencies = [
+ "sdl2 0.0.1-alpha.1 (git+https://github.com/AngryLawyer/rust-sdl2#99c95bd85641234b29b361000681e9df132b5529)",
+]
+
