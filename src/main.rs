@@ -47,23 +47,8 @@ fn main() {
     grid_textures.insert(TARGETVALID, target_valid_texture);
 
     let mut grid_content: Vec<Vec<SquareType>> = get_level_content();
-
-/*
-    for i in range(0, rows) {
-        let mut row = Vec::new();
-        for j in range(0, columns) {
-            let square_type = match FromPrimitive::from_uint(std::rand::random::<uint>() % 5) {
-                Some(t) => t,
-                None => EMPTY
-            };
-            row.push(square_type);
-        }
-        grid_content.push(row);
-    }*/
     let grid = create_grid(grid_content, &grid_textures);
-    println!("grid created");
     render_grid(&renderer, &grid, boxsize as i32);
-
     renderer.present();
 
     'main : loop {
