@@ -36,10 +36,10 @@ fn main() {
 
     let mut grid_textures: HashMap<SquareType, sdl2::render::Texture> = HashMap::new();
 
-    let wall_texture = load_texture_from_file("mur.jpg", &renderer);
-    let box_texture = load_texture_from_file("caisse.jpg", &renderer);
-    let target_texture = load_texture_from_file("objectif.png", &renderer);
-    let target_valid_texture = load_texture_from_file("caisse_ok.jpg", &renderer);
+    let wall_texture = load_texture_from_file("wall.jpg", &renderer);
+    let box_texture = load_texture_from_file("box.jpg", &renderer);
+    let target_texture = load_texture_from_file("target.png", &renderer);
+    let target_valid_texture = load_texture_from_file("box_ok.jpg", &renderer);
 
     grid_textures.insert(WALL, wall_texture);
     grid_textures.insert(BOX, box_texture);
@@ -96,7 +96,7 @@ impl<'a> Square<'a> {
 }
 
 pub fn load_texture_from_file(filename: &str, renderer: &sdl2::render::Renderer<sdl2::video::Window>) -> sdl2::render::Texture {
-    let mut path = Path::new("./target/data/sprites");
+    let mut path = Path::new("./resources/sprites");
     path.push(filename);
 
     let surface = match sdl2_image::LoadSurface::from_file(&path) {
@@ -110,7 +110,7 @@ pub fn load_texture_from_file(filename: &str, renderer: &sdl2::render::Renderer<
     return texture;
 }
 pub fn get_level_content() -> Vec<Vec<SquareType>> {
-    let level_path = Path::new("./target/data/level.txt");
+    let level_path = Path::new("./resources/level.txt");
     let mut file = BufferedReader::new(File::open(&level_path));
     let lines: Vec<String> = file.lines().map(|x| x.unwrap()).collect();
 
