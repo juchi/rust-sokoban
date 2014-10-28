@@ -6,6 +6,9 @@ use std::collections::HashMap;
 use game;
 
 pub fn init(width: int, height: int) -> sdl2::render::Renderer<sdl2::video::Window> {
+    sdl2::init(sdl2::INIT_VIDEO);
+    sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
+
     let window = match sdl2::video::Window::new("Sokoban", sdl2::video::PosCentered, sdl2::video::PosCentered, width, height, sdl2::video::OPENGL) {
         Ok(window) => window,
         Err(err) => fail!(format!("error on window init : {}", err))
@@ -17,6 +20,11 @@ pub fn init(width: int, height: int) -> sdl2::render::Renderer<sdl2::video::Wind
     };
 
     return renderer;
+}
+
+pub fn clear_screen(renderer: &sdl2::render::Renderer<sdl2::video::Window>) {
+    let _ = renderer.set_draw_color(sdl2::pixels::RGB(255, 255, 255));
+    let _ = renderer.clear();
 }
 
 fn load_texture_from_file(filename: &str, renderer: &sdl2::render::Renderer<sdl2::video::Window>) -> sdl2::render::Texture {
