@@ -5,6 +5,7 @@ use std::io::File;
 
 use sdl2;
 
+use control;
 use display;
 
 #[deriving(FromPrimitive)]
@@ -24,13 +25,17 @@ impl PartialEq for SquareType {
 }
 impl Eq for SquareType {}
 
-pub struct Game;
+pub struct Game {
+    ctrl: control::Control
+}
 
 impl Game {
     pub fn new() -> Game {
-        Game
+        Game {
+            ctrl: control::Control::new(),
+        }
     }
-    pub fn start(&self) {
+    pub fn start(&mut self) {
         let columns : int = 20;
         let rows : int = 20;
         let boxsize : int = 34;
@@ -42,32 +47,29 @@ impl Game {
         let grid = create_grid(grid_content, &grid_textures);
 
         display::clear_screen(&renderer);
-        render_grid(&renderer, &grid, boxsize as i32);
+        display::render_grid(&renderer, &grid, boxsize as i32);
         renderer.present();
 
+        self.run();
+
+        sdl2::quit();
+    }
+
+    pub fn run(&mut self) {
         'main : loop {
-            'event : loop {
-                match sdl2::event::poll_event() {
-                    sdl2::event::QuitEvent(_) => break 'main,
-                    sdl2::event::KeyDownEvent(_, _, key, _, _) => {
-                        if key == sdl2::keycode::EscapeKey {
-                            break 'main
-                        }
-                    },
-                    sdl2::event::NoEvent => break 'event,
-                    _ => {}
-                }
+            self.ctrl.update();
+            if self.ctrl.request_quit {
+                break;
             }
         }
-        sdl2::quit();
     }
 }
 
 pub struct Square<'a> {
-    x: int,
-    y: int,
-    square_type: SquareType,
-    texture: Option<&'a sdl2::render::Texture>
+    pub x: int,
+    pub y: int,
+    pub square_type: SquareType,
+    pub texture: Option<&'a sdl2::render::Texture>
 }
 
 impl<'a> Square<'a> {
@@ -129,19 +131,4 @@ fn create_grid(content: Vec<Vec<SquareType>>, textures: &HashMap<SquareType, sdl
 
 pub fn create_square(x: int, y: int, square_type: SquareType, texture: Option<&sdl2::render::Texture>) -> Square {
     Square{x:x, y:y, square_type: square_type, texture:texture}
-}
-
-pub fn render_grid(renderer: &sdl2::render::Renderer<sdl2::video::Window>, grid: &Vec<Vec<Square>>, boxsize: i32) {
-    for row in grid.iter() {
-        for square in row.iter() {
-            match square.texture {
-                Some(texture) => {
-                    let x: i32 = square.x as i32 * boxsize;
-                    let y: i32 = square.y as i32 * boxsize;
-                    let _ = renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
-                },
-                None => {}
-            }
-        }
-    }
 }

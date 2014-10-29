@@ -57,3 +57,18 @@ pub fn get_grid_textures(renderer: &sdl2::render::Renderer<sdl2::video::Window>)
 
     return grid_textures;
 }
+
+pub fn render_grid(renderer: &sdl2::render::Renderer<sdl2::video::Window>, grid: &Vec<Vec<game::Square>>, boxsize: i32) {
+    for row in grid.iter() {
+        for square in row.iter() {
+            match square.texture {
+                Some(texture) => {
+                    let x: i32 = square.x as i32 * boxsize;
+                    let y: i32 = square.y as i32 * boxsize;
+                    let _ = renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
+                },
+                None => {}
+            }
+        }
+    }
+}
