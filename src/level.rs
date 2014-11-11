@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use display;
 use sdl2;
+use player::Player;
 
 #[deriving(FromPrimitive)]
 #[deriving(Hash)]
@@ -29,7 +30,9 @@ pub struct Level {
     boxsize: int,
     renderer: sdl2::render::Renderer<sdl2::video::Window>,
     textures: HashMap<SquareType, Rc<sdl2::render::Texture>>,
-    grid: Vec<Vec<Square>>
+    player_texture: sdl2::render::Texture,
+    grid: Vec<Vec<Square>>,
+    start_position: (uint, uint)
 }
 
 impl Level {
@@ -37,6 +40,7 @@ impl Level {
         let width = 20 * 34;
         let height = 20 * 34;
         let renderer = display::init(width, height);
+        let p_tex = display::get_player_texture(&renderer);
 
         Level {
             columns: 20,
@@ -44,7 +48,9 @@ impl Level {
             boxsize: 34,
             renderer: renderer,
             textures: HashMap::new(),
-            grid: Vec::new()
+            player_texture: p_tex,
+            grid: Vec::new(),
+            start_position: (0, 0)
         }
     }
 
@@ -55,7 +61,11 @@ impl Level {
         self.grid = grid;
     }
 
-    fn get_level_content(&self) -> Vec<Vec<SquareType>> {
+    pub fn get_start_position(&self) -> (uint, uint) {
+        self.start_position
+    }
+
+    fn get_level_content(&mut self) -> Vec<Vec<SquareType>> {
         let level_path = Path::new("./resources/level.txt");
         let mut file = BufferedReader::new(File::open(&level_path));
         let lines: Vec<String> = file.lines().map(|x| x.unwrap()).collect();
@@ -67,6 +77,9 @@ impl Level {
             myline.pop();
             let slice: &str = myline.as_slice();
             for c in slice.chars() {
+                if c == 'P' {
+                    self.start_position = (row.len(), grid.len());
+                }
                 let code: int = match c.to_digit(4) {
                     Some(d) => d as int,
                     None => 0i
@@ -106,9 +119,10 @@ impl Level {
         return grid;
     }
 
-    pub fn update_display(&self) {
+    pub fn update_display(&self, player: &Player) {
         display::clear_screen(&self.renderer);
         display::render_grid(&self.renderer, &self.grid, self.boxsize as i32);
+        display::render_player(&self.renderer, &self.player_texture, player.get_position(), self.boxsize as i32);
         self.renderer.present();
     }
 }

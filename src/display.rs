@@ -59,6 +59,10 @@ pub fn get_grid_textures(renderer: &sdl2::render::Renderer<sdl2::video::Window>)
     return grid_textures;
 }
 
+pub fn get_player_texture(renderer: &sdl2::render::Renderer<sdl2::video::Window>) -> sdl2::render::Texture {
+    load_texture_from_file("mario_down.gif", renderer)
+}
+
 pub fn render_grid(renderer: &sdl2::render::Renderer<sdl2::video::Window>, grid: &Vec<Vec<level::Square>>, boxsize: i32) {
     for row in grid.iter() {
         for square in row.iter() {
@@ -73,4 +77,9 @@ pub fn render_grid(renderer: &sdl2::render::Renderer<sdl2::video::Window>, grid:
             }
         }
     }
+}
+
+pub fn render_player(renderer: &sdl2::render::Renderer<sdl2::video::Window>, texture: &sdl2::render::Texture, position: (uint, uint), boxsize: i32) {
+    let (x, y) = position;
+    renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x as i32 * boxsize, y as i32 * boxsize, boxsize, boxsize)));
 }

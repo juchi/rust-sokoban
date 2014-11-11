@@ -5,6 +5,7 @@ mod control;
 mod display;
 mod game;
 mod level;
+mod player;
 
 fn main() {
     let mut mygame = game::Game::new();
