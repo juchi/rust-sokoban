@@ -2,8 +2,9 @@ use sdl2;
 use sdl2_image;
 
 use std::collections::HashMap;
+use std::rc::Rc;
 
-use game;
+use level;
 
 pub fn init(width: int, height: int) -> sdl2::render::Renderer<sdl2::video::Window> {
     sdl2::init(sdl2::INIT_VIDEO);
@@ -42,30 +43,31 @@ fn load_texture_from_file(filename: &str, renderer: &sdl2::render::Renderer<sdl2
     return texture;
 }
 
-pub fn get_grid_textures(renderer: &sdl2::render::Renderer<sdl2::video::Window>) -> HashMap<game::SquareType, sdl2::render::Texture> {
-    let mut grid_textures: HashMap<game::SquareType, sdl2::render::Texture> = HashMap::new();
+pub fn get_grid_textures(renderer: &sdl2::render::Renderer<sdl2::video::Window>) -> HashMap<level::SquareType, Rc<sdl2::render::Texture>> {
+    let mut grid_textures: HashMap<level::SquareType, Rc<sdl2::render::Texture>> = HashMap::new();
 
     let wall_texture = load_texture_from_file("wall.jpg", renderer);
     let box_texture = load_texture_from_file("box.jpg", renderer);
     let target_texture = load_texture_from_file("target.png", renderer);
     let target_valid_texture = load_texture_from_file("box_ok.jpg", renderer);
 
-    grid_textures.insert(game::WALL, wall_texture);
-    grid_textures.insert(game::BOX, box_texture);
-    grid_textures.insert(game::TARGET, target_texture);
-    grid_textures.insert(game::TARGETVALID, target_valid_texture);
+    grid_textures.insert(level::WALL, Rc::new(wall_texture));
+    grid_textures.insert(level::BOX, Rc::new(box_texture));
+    grid_textures.insert(level::TARGET, Rc::new(target_texture));
+    grid_textures.insert(level::TARGETVALID, Rc::new(target_valid_texture));
 
     return grid_textures;
 }
 
-pub fn render_grid(renderer: &sdl2::render::Renderer<sdl2::video::Window>, grid: &Vec<Vec<game::Square>>, boxsize: i32) {
+pub fn render_grid(renderer: &sdl2::render::Renderer<sdl2::video::Window>, grid: &Vec<Vec<level::Square>>, boxsize: i32) {
     for row in grid.iter() {
         for square in row.iter() {
-            match square.texture {
+            let t = square.texture.clone();
+            match t {
                 Some(texture) => {
                     let x: i32 = square.x as i32 * boxsize;
                     let y: i32 = square.y as i32 * boxsize;
-                    let _ = renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
+                    let _ = renderer.copy(&*texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
                 },
                 None => {}
             }

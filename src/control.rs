@@ -1,7 +1,5 @@
 use sdl2;
 
-use game;
-
 pub struct Control {
     pub request_quit: bool
 }
