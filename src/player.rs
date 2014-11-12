@@ -24,4 +24,8 @@ impl Player {
     pub fn get_position(&self) -> (uint, uint) {
         self.position
     }
+
+    pub fn set_position(&mut self, new_pos: (uint, uint)) {
+        self.position = new_pos;
+    }
 }

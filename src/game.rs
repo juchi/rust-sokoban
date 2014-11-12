@@ -25,11 +25,19 @@ impl Game {
         sdl2::quit();
     }
 
-    pub fn run(&mut self, player: Player) {
+    pub fn run(&mut self, mut player: Player) {
         'main : loop {
             self.ctrl.update();
             if self.ctrl.request_quit {
                 break;
+            }
+            if self.ctrl.request_move != (0, 0) {
+                let (x, y) = player.get_position();
+                let (dx, dy) = self.ctrl.request_move;
+                let new_x = x as int + dx as int;
+                let new_y = y as int + dy as int;
+                player.set_position ((new_x as uint, new_y as uint));
+                self.ctrl.request_move = (0, 0);
             }
             match self.level {
                 Some(ref lvl) => lvl.update_display(&player),
