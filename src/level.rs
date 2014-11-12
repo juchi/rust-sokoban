@@ -3,7 +3,7 @@ use std::io::BufferedReader;
 use std::io::File;
 use std::rc::Rc;
 
-use display;
+use display::Display;
 use sdl2;
 use player::Player;
 
@@ -28,7 +28,7 @@ pub struct Level {
     columns: int,
     rows: int,
     boxsize: int,
-    renderer: sdl2::render::Renderer<sdl2::video::Window>,
+    renderer: Display,
     textures: HashMap<SquareType, Rc<sdl2::render::Texture>>,
     player_texture: sdl2::render::Texture,
     grid: Vec<Vec<Square>>,
@@ -39,8 +39,8 @@ impl Level {
     pub fn new() -> Level {
         let width = 20 * 34;
         let height = 20 * 34;
-        let renderer = display::init(width, height);
-        let p_tex = display::get_player_texture(&renderer);
+        let renderer = Display::new(width, height);
+        let p_tex = renderer.get_player_texture();
 
         Level {
             columns: 20,
@@ -55,7 +55,7 @@ impl Level {
     }
 
     pub fn init(&mut self) {
-        self.textures = display::get_grid_textures(&self.renderer);
+        self.textures = self.renderer.get_grid_textures();
         let grid_content: Vec<Vec<SquareType>> = self.get_level_content();
         let grid = Level::create_grid(grid_content, &self.textures);
         self.grid = grid;
@@ -120,10 +120,10 @@ impl Level {
     }
 
     pub fn update_display(&self, player: &Player) {
-        display::clear_screen(&self.renderer);
-        display::render_grid(&self.renderer, &self.grid, self.boxsize as i32);
-        display::render_player(&self.renderer, &self.player_texture, player.get_position(), self.boxsize as i32);
-        self.renderer.present();
+        self.renderer.clear_screen();
+        self.renderer.render_grid(&self.grid, self.boxsize as i32);
+        self.renderer.render_player(&self.player_texture, player.get_position(), self.boxsize as i32);
+        self.renderer.renderer.present();
     }
 }
 
