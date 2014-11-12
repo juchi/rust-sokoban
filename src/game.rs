@@ -36,6 +36,7 @@ impl Game {
                 let (dx, dy) = self.ctrl.request_move;
                 let new_x = x as int + dx as int;
                 let new_y = y as int + dy as int;
+                player.update_orientation(self.ctrl.request_move);
                 player.set_position ((new_x as uint, new_y as uint));
                 self.ctrl.request_move = (0, 0);
             }

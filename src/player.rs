@@ -28,4 +28,17 @@ impl Player {
     pub fn set_position(&mut self, new_pos: (uint, uint)) {
         self.position = new_pos;
     }
+
+    pub fn update_orientation(&mut self, movement: (i8, i8)) {
+        let (dx, dy) = movement;
+        if dy == -1 {
+            self.orientation = UP;
+        } else if dy == 1 {
+            self.orientation = DOWN;
+        } else if dx == -1 {
+            self.orientation = LEFT;
+        } else if dx == 1 {
+            self.orientation = RIGHT;
+        }
+    }
 }
