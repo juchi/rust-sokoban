@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use display::Display;
 use sdl2;
+use player;
 use player::Player;
 
 #[deriving(FromPrimitive)]
@@ -25,7 +26,7 @@ pub struct Level {
     boxsize: int,
     renderer: Display,
     textures: HashMap<SquareType, Rc<sdl2::render::Texture>>,
-    player_texture: sdl2::render::Texture,
+    player_textures: HashMap<player::Orientation, Rc<sdl2::render::Texture>>,
     grid: Vec<Vec<Square>>,
     start_position: (uint, uint)
 }
@@ -35,7 +36,6 @@ impl Level {
         let width = 20 * 34;
         let height = 20 * 34;
         let renderer = Display::new(width, height);
-        let p_tex = renderer.get_player_texture();
 
         Level {
             columns: 20,
@@ -43,7 +43,7 @@ impl Level {
             boxsize: 34,
             renderer: renderer,
             textures: HashMap::new(),
-            player_texture: p_tex,
+            player_textures: HashMap::new(),
             grid: Vec::new(),
             start_position: (0, 0)
         }
@@ -51,6 +51,7 @@ impl Level {
 
     pub fn init(&mut self) {
         self.textures = self.renderer.get_grid_textures();
+        self.player_textures = self.renderer.get_player_textures();
         let grid_content: Vec<Vec<SquareType>> = self.get_level_content();
         let grid = Level::create_grid(grid_content, &self.textures);
         self.grid = grid;
@@ -117,7 +118,11 @@ impl Level {
     pub fn update_display(&self, player: &Player) {
         self.renderer.clear_screen();
         self.renderer.render_grid(&self.grid, self.boxsize as i32);
-        self.renderer.render_player(&self.player_texture, player.get_position(), self.boxsize as i32);
+        let player_texture = match self.player_textures.find(&player.orientation) {
+            Some(t) => t,
+            None => fail!(format!("error on texture retrieval for player orientation {}", player.orientation as int))
+        };
+        self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
         self.renderer.renderer.present();
     }
 }

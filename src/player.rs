@@ -1,12 +1,23 @@
 
+#[deriving(Hash)]
+#[deriving(Eq)]
+#[deriving(PartialEq)]
+pub enum Orientation {
+    UP = 0i,
+    DOWN = 1i,
+    LEFT = 2i,
+    RIGHT = 3i
+}
 pub struct Player {
-    position: (uint, uint)
+    position: (uint, uint),
+    pub orientation: Orientation
 }
 
 impl Player {
     pub fn new(pos: (uint, uint)) -> Player {
         Player {
-            position: pos
+            position: pos,
+            orientation: DOWN
         }
     }
 

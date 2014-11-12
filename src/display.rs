@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use level;
+use player;
 
 pub struct Display {
     pub renderer: sdl2::render::Renderer<sdl2::video::Window>
@@ -30,11 +31,22 @@ impl Display {
         }
     }
 
-    pub fn get_player_texture(&self) -> sdl2::render::Texture {
-        Display::load_texture_from_file("mario_down.gif", &self.renderer)
+    pub fn get_player_textures(&self) -> HashMap<player::Orientation, Rc<sdl2::render::Texture>> {
+        let mut textures = HashMap::new();
+        let up_texture = self.load_texture_from_file("mario_up.gif");
+        let down_texture = self.load_texture_from_file("mario_down.gif");
+        let left_texture = self.load_texture_from_file("mario_left.gif");
+        let right_texture = self.load_texture_from_file("mario_right.gif");
+
+        textures.insert(player::UP, Rc::new(up_texture));
+        textures.insert(player::DOWN, Rc::new(down_texture));
+        textures.insert(player::LEFT, Rc::new(left_texture));
+        textures.insert(player::RIGHT, Rc::new(right_texture));
+
+        return textures;
     }
 
-    fn load_texture_from_file(filename: &str, renderer: &sdl2::render::Renderer<sdl2::video::Window>) -> sdl2::render::Texture {
+    fn load_texture_from_file(&self, filename: &str) -> sdl2::render::Texture {
         let mut path = Path::new("./resources/sprites");
         path.push(filename);
 
@@ -42,7 +54,7 @@ impl Display {
             Ok(surface) => surface,
             Err(err) => fail!(format!("error on image load {}", err))
         };
-        let texture = match renderer.create_texture_from_surface(&surface) {
+        let texture = match self.renderer.create_texture_from_surface(&surface) {
             Ok(texture) => texture,
             Err(err) => fail!(format!("error on texture creation {}", err))
         };
@@ -57,10 +69,10 @@ impl Display {
     pub fn get_grid_textures(&self) -> HashMap<level::SquareType, Rc<sdl2::render::Texture>> {
         let mut grid_textures: HashMap<level::SquareType, Rc<sdl2::render::Texture>> = HashMap::new();
 
-        let wall_texture = Display::load_texture_from_file("wall.jpg", &self.renderer);
-        let box_texture = Display::load_texture_from_file("box.jpg", &self.renderer);
-        let target_texture = Display::load_texture_from_file("target.png", &self.renderer);
-        let target_valid_texture = Display::load_texture_from_file("box_ok.jpg", &self.renderer);
+        let wall_texture = self.load_texture_from_file("wall.jpg");
+        let box_texture = self.load_texture_from_file("box.jpg");
+        let target_texture = self.load_texture_from_file("target.png");
+        let target_valid_texture = self.load_texture_from_file("box_ok.jpg");
 
         grid_textures.insert(level::WALL, Rc::new(wall_texture));
         grid_textures.insert(level::BOX, Rc::new(box_texture));
