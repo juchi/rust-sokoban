@@ -125,6 +125,23 @@ impl Level {
         self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
         self.renderer.renderer.present();
     }
+
+    pub fn is_move_allowed(&self, player: &Player, movement: (i8, i8)) -> bool {
+        let pos = player.get_position();
+
+        let (x, y) = player.get_position();
+        let (dx, dy) = movement;
+        let new_x = x as int + dx as int;
+        let new_y = y as int + dy as int;
+
+        match self.grid[new_y as uint][new_x as uint].square_type {
+            EMPTY => true,
+            WALL => false,
+            BOX => false,
+            TARGET => true,
+            TARGETVALID => false
+        }
+    }
 }
 
 pub struct Square {

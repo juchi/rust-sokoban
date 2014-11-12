@@ -31,17 +31,22 @@ impl Game {
             if self.ctrl.request_quit {
                 break;
             }
-            if self.ctrl.request_move != (0, 0) {
-                let (x, y) = player.get_position();
-                let (dx, dy) = self.ctrl.request_move;
-                let new_x = x as int + dx as int;
-                let new_y = y as int + dy as int;
-                player.update_orientation(self.ctrl.request_move);
-                player.set_position ((new_x as uint, new_y as uint));
-                self.ctrl.request_move = (0, 0);
-            }
             match self.level {
-                Some(ref lvl) => lvl.update_display(&player),
+                Some(ref lvl) => {
+                    if self.ctrl.request_move != (0, 0) {
+                        if lvl.is_move_allowed(&player, self.ctrl.request_move) {
+                            let (x, y) = player.get_position();
+                            let (dx, dy) = self.ctrl.request_move;
+                            let new_x = x as int + dx as int;
+                            let new_y = y as int + dy as int;
+                            player.set_position((new_x as uint, new_y as uint));
+                        }
+
+                        player.update_orientation(self.ctrl.request_move);
+                        self.ctrl.request_move = (0, 0);
+                    }
+                    lvl.update_display(&player)
+                },
                 None => {}
             }
         }
