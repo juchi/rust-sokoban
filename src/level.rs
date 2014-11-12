@@ -9,6 +9,8 @@ use player::Player;
 
 #[deriving(FromPrimitive)]
 #[deriving(Hash)]
+#[deriving(Eq)]
+#[deriving(PartialEq)]
 pub enum SquareType {
     EMPTY = 0i,
     WALL = 1i,
@@ -16,13 +18,6 @@ pub enum SquareType {
     TARGET = 3i,
     TARGETVALID = 4i
 }
-
-impl PartialEq for SquareType {
-    fn eq(&self, other: &SquareType) -> bool {
-        *self as int == *other as int
-    }
-}
-impl Eq for SquareType {}
 
 pub struct Level {
     columns: int,
