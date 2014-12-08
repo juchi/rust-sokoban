@@ -82,7 +82,7 @@ impl Level {
                 };
                 let square_type = match FromPrimitive::from_int(code) {
                     Some(t) => t,
-                    None => EMPTY
+                    None => SquareType::EMPTY
                 };
                 row.push(square_type);
             }
@@ -100,10 +100,10 @@ impl Level {
             let mut j = 0i;
             for square_type in content_row.iter() {
                 let mut tex: Option<Rc<sdl2::render::Texture>> = None;
-                if *square_type != EMPTY {
+                if *square_type != SquareType::EMPTY {
                     tex = match textures.find(square_type) {
                         Some(t) => {let tcopy = t.clone(); Some(tcopy)},
-                        None => fail!(format!("error on texture retrieval for type {}", *square_type as int))
+                        None => panic!(format!("error on texture retrieval for type {}", *square_type as int))
                     };
                 }
                 row.push(create_square(j, i, *square_type, tex));
@@ -120,7 +120,7 @@ impl Level {
         self.renderer.render_grid(&self.grid, self.boxsize as i32);
         let player_texture = match self.player_textures.find(&player.orientation) {
             Some(t) => t,
-            None => fail!(format!("error on texture retrieval for player orientation {}", player.orientation as int))
+            None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation as int))
         };
         self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
         self.renderer.renderer.present();
@@ -135,11 +135,11 @@ impl Level {
         let new_y = y as int + dy as int;
 
         match self.grid[new_y as uint][new_x as uint].square_type {
-            EMPTY => true,
-            WALL => false,
-            BOX => false,
-            TARGET => true,
-            TARGETVALID => false
+            SquareType::EMPTY => true,
+            SquareType::WALL => false,
+            SquareType::BOX => false,
+            SquareType::TARGET => true,
+            SquareType::TARGETVALID => false
         }
     }
 }

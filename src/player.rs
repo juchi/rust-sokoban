@@ -17,7 +17,7 @@ impl Player {
     pub fn new(pos: (uint, uint)) -> Player {
         Player {
             position: pos,
-            orientation: DOWN
+            orientation: Orientation::DOWN
         }
     }
 
@@ -32,13 +32,13 @@ impl Player {
     pub fn update_orientation(&mut self, movement: (i8, i8)) {
         let (dx, dy) = movement;
         if dy == -1 {
-            self.orientation = UP;
+            self.orientation = Orientation::UP;
         } else if dy == 1 {
-            self.orientation = DOWN;
+            self.orientation = Orientation::DOWN;
         } else if dx == -1 {
-            self.orientation = LEFT;
+            self.orientation = Orientation::LEFT;
         } else if dx == 1 {
-            self.orientation = RIGHT;
+            self.orientation = Orientation::RIGHT;
         }
     }
 }

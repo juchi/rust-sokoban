@@ -1,4 +1,5 @@
 use sdl2;
+use sdl2::video::WindowPos;
 use sdl2_image;
 
 use std::collections::HashMap;
@@ -8,7 +9,7 @@ use level;
 use player;
 
 pub struct Display {
-    pub renderer: sdl2::render::Renderer<sdl2::video::Window>
+    pub renderer: sdl2::render::Renderer
 }
 
 impl Display {
@@ -16,14 +17,14 @@ impl Display {
         sdl2::init(sdl2::INIT_VIDEO);
         sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
 
-        let window = match sdl2::video::Window::new("Sokoban", sdl2::video::PosCentered, sdl2::video::PosCentered, width, height, sdl2::video::OPENGL) {
+        let window = match sdl2::video::Window::new("Sokoban", WindowPos::PosCentered, WindowPos::PosCentered, width, height, sdl2::video::OPENGL) {
             Ok(window) => window,
-            Err(err) => fail!(format!("error on window init : {}", err))
+            Err(err) => panic!(format!("error on window init : {}", err))
         };
 
-        let renderer = match sdl2::render::Renderer::from_window(window, sdl2::render::DriverAuto, sdl2::render::ACCELERATED) {
+        let renderer = match sdl2::render::Renderer::from_window(window, sdl2::render::RenderDriverIndex::Auto, sdl2::render::ACCELERATED) {
             Ok(renderer) => renderer,
-            Err(err) => fail!(format!("failed to create renderer: {}", err))
+            Err(err) => panic!(format!("failed to create renderer: {}", err))
         };
 
         Display {
@@ -38,10 +39,10 @@ impl Display {
         let left_texture = self.load_texture_from_file("mario_left.gif");
         let right_texture = self.load_texture_from_file("mario_right.gif");
 
-        textures.insert(player::UP, Rc::new(up_texture));
-        textures.insert(player::DOWN, Rc::new(down_texture));
-        textures.insert(player::LEFT, Rc::new(left_texture));
-        textures.insert(player::RIGHT, Rc::new(right_texture));
+        textures.insert(player::Orientation::UP, Rc::new(up_texture));
+        textures.insert(player::Orientation::DOWN, Rc::new(down_texture));
+        textures.insert(player::Orientation::LEFT, Rc::new(left_texture));
+        textures.insert(player::Orientation::RIGHT, Rc::new(right_texture));
 
         return textures;
     }
@@ -52,17 +53,17 @@ impl Display {
 
         let surface = match sdl2_image::LoadSurface::from_file(&path) {
             Ok(surface) => surface,
-            Err(err) => fail!(format!("error on image load {}", err))
+            Err(err) => panic!(format!("error on image load {}", err))
         };
         let texture = match self.renderer.create_texture_from_surface(&surface) {
             Ok(texture) => texture,
-            Err(err) => fail!(format!("error on texture creation {}", err))
+            Err(err) => panic!(format!("error on texture creation {}", err))
         };
         return texture;
     }
 
     pub fn clear_screen(&self) {
-        let _ = self.renderer.set_draw_color(sdl2::pixels::RGB(255, 255, 255));
+        let _ = self.renderer.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
         let _ = self.renderer.clear();
     }
 
@@ -74,10 +75,10 @@ impl Display {
         let target_texture = self.load_texture_from_file("target.png");
         let target_valid_texture = self.load_texture_from_file("box_ok.jpg");
 
-        grid_textures.insert(level::WALL, Rc::new(wall_texture));
-        grid_textures.insert(level::BOX, Rc::new(box_texture));
-        grid_textures.insert(level::TARGET, Rc::new(target_texture));
-        grid_textures.insert(level::TARGETVALID, Rc::new(target_valid_texture));
+        grid_textures.insert(level::SquareType::WALL, Rc::new(wall_texture));
+        grid_textures.insert(level::SquareType::BOX, Rc::new(box_texture));
+        grid_textures.insert(level::SquareType::TARGET, Rc::new(target_texture));
+        grid_textures.insert(level::SquareType::TARGETVALID, Rc::new(target_valid_texture));
 
         return grid_textures;
     }
