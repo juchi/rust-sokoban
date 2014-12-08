@@ -83,15 +83,15 @@ impl Display {
         return grid_textures;
     }
 
-    pub fn render_grid(&self, grid: &Vec<Vec<level::Square>>, boxsize: i32) {
+    pub fn render_grid(&self, grid: &Vec<Vec<level::Square>>, boxsize: i32, textures: & HashMap<level::SquareType, Rc<sdl2::render::Texture>>) {
         for row in grid.iter() {
             for square in row.iter() {
-                let t = square.texture.clone();
+                let t = textures.get(&square.square_type);
                 match t {
                     Some(texture) => {
                         let x: i32 = square.x as i32 * boxsize;
                         let y: i32 = square.y as i32 * boxsize;
-                        let _ = self.renderer.copy(&*texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
+                        let _ = self.renderer.copy(&**texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
                     },
                     None => {}
                 }

@@ -32,20 +32,24 @@ impl Game {
                 break;
             }
             match self.level {
-                Some(ref lvl) => {
+                Some(ref mut lvl) => {
                     if self.ctrl.request_move != (0, 0) {
                         if lvl.is_move_allowed(&player, self.ctrl.request_move) {
                             let (x, y) = player.get_position();
                             let (dx, dy) = self.ctrl.request_move;
                             let new_x = x as int + dx as int;
                             let new_y = y as int + dy as int;
-                            player.set_position((new_x as uint, new_y as uint));
+                            let new_pos = (new_x as uint, new_y as uint);
+                            if lvl.is_box_present(new_pos) {
+                                lvl.move_box(new_pos, (dx, dy));
+                            }
+                            player.set_position(new_pos);
                         }
 
                         player.update_orientation(self.ctrl.request_move);
                         self.ctrl.request_move = (0, 0);
                     }
-                    lvl.update_display(&player)
+                    lvl.update_display(&player);
                 },
                 None => {}
             }

@@ -53,8 +53,7 @@ impl Level {
         self.textures = self.renderer.get_grid_textures();
         self.player_textures = self.renderer.get_player_textures();
         let grid_content: Vec<Vec<SquareType>> = self.get_level_content();
-        let grid = Level::create_grid(grid_content, &self.textures);
-        self.grid = grid;
+        self.grid = Level::create_grid(grid_content, &self.textures);
     }
 
     pub fn get_start_position(&self) -> (uint, uint) {
@@ -101,7 +100,7 @@ impl Level {
             for square_type in content_row.iter() {
                 let mut tex: Option<Rc<sdl2::render::Texture>> = None;
                 if *square_type != SquareType::EMPTY {
-                    tex = match textures.find(square_type) {
+                    tex = match textures.get(square_type) {
                         Some(t) => {let tcopy = t.clone(); Some(tcopy)},
                         None => panic!(format!("error on texture retrieval for type {}", *square_type as int))
                     };
@@ -117,7 +116,7 @@ impl Level {
 
     pub fn update_display(&self, player: &Player) {
         self.renderer.clear_screen();
-        self.renderer.render_grid(&self.grid, self.boxsize as i32);
+        self.renderer.render_grid(&self.grid, self.boxsize as i32, &self.textures);
         let player_texture = match self.player_textures.find(&player.orientation) {
             Some(t) => t,
             None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation as int))
@@ -127,8 +126,6 @@ impl Level {
     }
 
     pub fn is_move_allowed(&self, player: &Player, movement: (i8, i8)) -> bool {
-        let pos = player.get_position();
-
         let (x, y) = player.get_position();
         let (dx, dy) = movement;
         let new_x = x as int + dx as int;
@@ -137,10 +134,44 @@ impl Level {
         match self.grid[new_y as uint][new_x as uint].square_type {
             SquareType::EMPTY => true,
             SquareType::WALL => false,
-            SquareType::BOX => false,
-            SquareType::TARGET => true,
-            SquareType::TARGETVALID => false
+            SquareType::BOX | SquareType::TARGETVALID => {
+                let pos = ((new_x + dx as int) as uint, (new_y + dy as int) as uint);
+                self.is_free(pos)
+            },
+            SquareType::TARGET => true
         }
+    }
+    pub fn is_free(&self, position: (uint, uint)) -> bool {
+        let (x, y) = position;
+        match self.grid[y][x].square_type {
+            SquareType::EMPTY | SquareType::TARGET => true,
+            _ => false
+        }
+    }
+    pub fn is_box_present(&self, position: (uint, uint)) -> bool {
+        let (x, y) = position;
+        match self.grid[y][x].square_type {
+            SquareType::BOX | SquareType::TARGETVALID => true,
+            _ => false
+        }
+    }
+
+    pub fn move_box(&mut self, position: (uint, uint), delta: (i8, i8)) {
+        let (x, y) = position;
+        let (dx, dy) = delta;
+        let new_x = (x as int + dx as int) as uint;
+        let new_y = (y as int + dy as int) as uint;
+        match self.grid[y][x].square_type {
+            SquareType::BOX => self.grid[y][x].square_type = SquareType::EMPTY,
+            SquareType::TARGETVALID => self.grid[y][x].square_type = SquareType::TARGET,
+            _ => ()
+        };
+
+        match self.grid[new_y][new_x].square_type {
+            SquareType::EMPTY => self.grid[new_y][new_x].square_type = SquareType::BOX,
+            SquareType::TARGET => self.grid[new_y][new_x].square_type = SquareType::TARGETVALID,
+            _ => ()
+        };
     }
 }
 
