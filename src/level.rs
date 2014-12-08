@@ -98,14 +98,7 @@ impl Level {
             let mut row: Vec<Square> = Vec::new();
             let mut j = 0i;
             for square_type in content_row.iter() {
-                let mut tex: Option<Rc<sdl2::render::Texture>> = None;
-                if *square_type != SquareType::EMPTY {
-                    tex = match textures.get(square_type) {
-                        Some(t) => {let tcopy = t.clone(); Some(tcopy)},
-                        None => panic!(format!("error on texture retrieval for type {}", *square_type as int))
-                    };
-                }
-                row.push(create_square(j, i, *square_type, tex));
+                row.push(create_square(j, i, *square_type));
                 j += 1;
             }
             i += 1;
@@ -179,10 +172,9 @@ pub struct Square {
     pub x: int,
     pub y: int,
     pub square_type: SquareType,
-    pub texture: Option<Rc<sdl2::render::Texture>>
 }
 
 
-pub fn create_square(x: int, y: int, square_type: SquareType, texture: Option<Rc<sdl2::render::Texture>>) -> Square {
-    Square{x:x, y:y, square_type: square_type, texture:texture}
+pub fn create_square(x: int, y: int, square_type: SquareType) -> Square {
+    Square{x:x, y:y, square_type: square_type}
 }
