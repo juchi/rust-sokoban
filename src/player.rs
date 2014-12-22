@@ -1,4 +1,5 @@
 
+#[deriving(Clone)]
 #[deriving(Hash)]
 #[deriving(Eq)]
 #[deriving(PartialEq)]

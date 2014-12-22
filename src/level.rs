@@ -8,6 +8,7 @@ use sdl2;
 use player;
 use player::Player;
 
+#[deriving(Clone)]
 #[deriving(FromPrimitive)]
 #[deriving(Hash)]
 #[deriving(Eq)]
@@ -53,7 +54,7 @@ impl Level {
         self.textures = self.renderer.get_grid_textures();
         self.player_textures = self.renderer.get_player_textures();
         let grid_content: Vec<Vec<SquareType>> = self.get_level_content();
-        self.grid = Level::create_grid(grid_content, &self.textures);
+        self.grid = Level::create_grid(grid_content);
     }
 
     pub fn get_start_position(&self) -> (uint, uint) {
@@ -90,7 +91,7 @@ impl Level {
         return grid;
     }
 
-    fn create_grid(content: Vec<Vec<SquareType>>, textures: & HashMap<SquareType, Rc<sdl2::render::Texture>>) -> Vec<Vec<Square>> {
+    fn create_grid(content: Vec<Vec<SquareType>>) -> Vec<Vec<Square>> {
         let mut grid: Vec<Vec<Square>> = Vec::new();
         let mut i = 0i;
 
@@ -98,7 +99,8 @@ impl Level {
             let mut row: Vec<Square> = Vec::new();
             let mut j = 0i;
             for square_type in content_row.iter() {
-                row.push(create_square(j, i, *square_type));
+                let s = create_square(j, i, square_type.clone());
+                row.push(s);
                 j += 1;
             }
             i += 1;
@@ -110,9 +112,9 @@ impl Level {
     pub fn update_display(&self, player: &Player) {
         self.renderer.clear_screen();
         self.renderer.render_grid(&self.grid, self.boxsize as i32, &self.textures);
-        let player_texture = match self.player_textures.find(&player.orientation) {
+        let player_texture = match self.player_textures.get(&player.orientation) {
             Some(t) => t,
-            None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation as int))
+            None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation.clone() as int))
         };
         self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
         self.renderer.renderer.present();
