@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::io::BufferedReader;
 use std::io::File;
+use std::num::FromPrimitive;
 use std::rc::Rc;
 
 use display::Display;
@@ -8,28 +9,28 @@ use sdl2;
 use player;
 use player::Player;
 
-#[deriving(Clone)]
-#[deriving(FromPrimitive)]
-#[deriving(Hash)]
-#[deriving(Eq)]
-#[deriving(PartialEq)]
+#[derive(Clone)]
+#[derive(FromPrimitive)]
+#[derive(Hash)]
+#[derive(Eq)]
+#[derive(PartialEq)]
 pub enum SquareType {
-    EMPTY = 0i,
-    WALL = 1i,
-    BOX = 2i,
-    TARGET = 3i,
-    TARGETVALID = 4i
+    EMPTY = 0is,
+    WALL = 1is,
+    BOX = 2is,
+    TARGET = 3is,
+    TARGETVALID = 4is
 }
 
 pub struct Level {
-    columns: int,
-    rows: int,
-    boxsize: int,
+    columns: isize,
+    rows: isize,
+    boxsize: isize,
     renderer: Display,
     textures: HashMap<SquareType, Rc<sdl2::render::Texture>>,
     player_textures: HashMap<player::Orientation, Rc<sdl2::render::Texture>>,
     grid: Vec<Vec<Square>>,
-    start_position: (uint, uint)
+    start_position: (usize, usize)
 }
 
 impl Level {
@@ -57,7 +58,7 @@ impl Level {
         self.grid = Level::create_grid(grid_content);
     }
 
-    pub fn get_start_position(&self) -> (uint, uint) {
+    pub fn get_start_position(&self) -> (usize, usize) {
         self.start_position
     }
 
@@ -76,9 +77,9 @@ impl Level {
                 if c == 'P' {
                     self.start_position = (row.len(), grid.len());
                 }
-                let code: int = match c.to_digit(4) {
-                    Some(d) => d as int,
-                    None => 0i
+                let code: isize = match c.to_digit(4) {
+                    Some(d) => d as isize,
+                    None => 0is
                 };
                 let square_type = match FromPrimitive::from_int(code) {
                     Some(t) => t,
@@ -93,11 +94,11 @@ impl Level {
 
     fn create_grid(content: Vec<Vec<SquareType>>) -> Vec<Vec<Square>> {
         let mut grid: Vec<Vec<Square>> = Vec::new();
-        let mut i = 0i;
+        let mut i = 0is;
 
         for content_row in content.iter() {
             let mut row: Vec<Square> = Vec::new();
-            let mut j = 0i;
+            let mut j = 0is;
             for square_type in content_row.iter() {
                 let s = create_square(j, i, square_type.clone());
                 row.push(s);
@@ -114,7 +115,7 @@ impl Level {
         self.renderer.render_grid(&self.grid, self.boxsize as i32, &self.textures);
         let player_texture = match self.player_textures.get(&player.orientation) {
             Some(t) => t,
-            None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation.clone() as int))
+            None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation.clone() as isize))
         };
         self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
         self.renderer.renderer.present();
@@ -123,27 +124,27 @@ impl Level {
     pub fn is_move_allowed(&self, player: &Player, movement: (i8, i8)) -> bool {
         let (x, y) = player.get_position();
         let (dx, dy) = movement;
-        let new_x = x as int + dx as int;
-        let new_y = y as int + dy as int;
+        let new_x = x as isize + dx as isize;
+        let new_y = y as isize + dy as isize;
 
-        match self.grid[new_y as uint][new_x as uint].square_type {
+        match self.grid[new_y as usize][new_x as usize].square_type {
             SquareType::EMPTY => true,
             SquareType::WALL => false,
             SquareType::BOX | SquareType::TARGETVALID => {
-                let pos = ((new_x + dx as int) as uint, (new_y + dy as int) as uint);
+                let pos = ((new_x + dx as isize) as usize, (new_y + dy as isize) as usize);
                 self.is_free(pos)
             },
             SquareType::TARGET => true
         }
     }
-    pub fn is_free(&self, position: (uint, uint)) -> bool {
+    pub fn is_free(&self, position: (usize, usize)) -> bool {
         let (x, y) = position;
         match self.grid[y][x].square_type {
             SquareType::EMPTY | SquareType::TARGET => true,
             _ => false
         }
     }
-    pub fn is_box_present(&self, position: (uint, uint)) -> bool {
+    pub fn is_box_present(&self, position: (usize, usize)) -> bool {
         let (x, y) = position;
         match self.grid[y][x].square_type {
             SquareType::BOX | SquareType::TARGETVALID => true,
@@ -151,11 +152,11 @@ impl Level {
         }
     }
 
-    pub fn move_box(&mut self, position: (uint, uint), delta: (i8, i8)) {
+    pub fn move_box(&mut self, position: (usize, usize), delta: (i8, i8)) {
         let (x, y) = position;
         let (dx, dy) = delta;
-        let new_x = (x as int + dx as int) as uint;
-        let new_y = (y as int + dy as int) as uint;
+        let new_x = (x as isize + dx as isize) as usize;
+        let new_y = (y as isize + dy as isize) as usize;
         match self.grid[y][x].square_type {
             SquareType::BOX => self.grid[y][x].square_type = SquareType::EMPTY,
             SquareType::TARGETVALID => self.grid[y][x].square_type = SquareType::TARGET,
@@ -171,12 +172,12 @@ impl Level {
 }
 
 pub struct Square {
-    pub x: int,
-    pub y: int,
+    pub x: isize,
+    pub y: isize,
     pub square_type: SquareType,
 }
 
 
-pub fn create_square(x: int, y: int, square_type: SquareType) -> Square {
+pub fn create_square(x: isize, y: isize, square_type: SquareType) -> Square {
     Square{x:x, y:y, square_type: square_type}
 }

@@ -37,9 +37,9 @@ impl Game {
                         if lvl.is_move_allowed(&player, self.ctrl.request_move) {
                             let (x, y) = player.get_position();
                             let (dx, dy) = self.ctrl.request_move;
-                            let new_x = x as int + dx as int;
-                            let new_y = y as int + dy as int;
-                            let new_pos = (new_x as uint, new_y as uint);
+                            let new_x = x as isize + dx as isize;
+                            let new_y = y as isize + dy as isize;
+                            let new_pos = (new_x as usize, new_y as usize);
                             if lvl.is_box_present(new_pos) {
                                 lvl.move_box(new_pos, (dx, dy));
                             }

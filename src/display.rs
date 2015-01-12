@@ -13,7 +13,7 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(width: int, height: int) -> Display {
+    pub fn new(width: isize, height: isize) -> Display {
         sdl2::init(sdl2::INIT_VIDEO);
         sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
 
@@ -99,7 +99,7 @@ impl Display {
         }
     }
 
-    pub fn render_player(&self, texture: &sdl2::render::Texture, position: (uint, uint), boxsize: i32) {
+    pub fn render_player(&self, texture: &sdl2::render::Texture, position: (usize, usize), boxsize: i32) {
         let (x, y) = position;
         let _ = self.renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x as i32 * boxsize, y as i32 * boxsize, boxsize, boxsize)));
     }

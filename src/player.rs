@@ -1,32 +1,32 @@
 
-#[deriving(Clone)]
-#[deriving(Hash)]
-#[deriving(Eq)]
-#[deriving(PartialEq)]
+#[derive(Clone)]
+#[derive(Hash)]
+#[derive(Eq)]
+#[derive(PartialEq)]
 pub enum Orientation {
-    UP = 0i,
-    DOWN = 1i,
-    LEFT = 2i,
-    RIGHT = 3i
+    UP = 0is,
+    DOWN = 1is,
+    LEFT = 2is,
+    RIGHT = 3is
 }
 pub struct Player {
-    position: (uint, uint),
+    position: (usize, usize),
     pub orientation: Orientation
 }
 
 impl Player {
-    pub fn new(pos: (uint, uint)) -> Player {
+    pub fn new(pos: (usize, usize)) -> Player {
         Player {
             position: pos,
             orientation: Orientation::DOWN
         }
     }
 
-    pub fn get_position(&self) -> (uint, uint) {
+    pub fn get_position(&self) -> (usize, usize) {
         self.position
     }
 
-    pub fn set_position(&mut self, new_pos: (uint, uint)) {
+    pub fn set_position(&mut self, new_pos: (usize, usize)) {
         self.position = new_pos;
     }
 
