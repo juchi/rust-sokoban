@@ -5,7 +5,7 @@ version = "0.0.1"
 authors = ["Julien Chichignoud <julien.chichignoud@gmail.com>"]
 
 [dependencies]
-sdl2 = "0.0.16"
+sdl2 = "0.4.0"
 
 [dependencies.sdl2_image]
 git = "https://github.com/xsleonard/rust-sdl2_image"
