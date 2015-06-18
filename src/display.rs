@@ -1,31 +1,25 @@
 use sdl2;
-use sdl2::video::WindowPos;
+use sdl2::Sdl;
+use sdl2::render::Renderer;
 use sdl2_image;
 
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::path::Path;
 
 use level;
 use player;
 
-pub struct Display {
-    pub renderer: sdl2::render::Renderer
+pub struct Display<'a> {
+    pub renderer: sdl2::render::Renderer<'a>
 }
 
-impl Display {
-    pub fn new(width: isize, height: isize) -> Display {
-        sdl2::init(sdl2::INIT_VIDEO);
+impl<'a> Display<'a> {
+    pub fn new(width: u32, height: u32, sdl_context: & Sdl) -> Display<'a> {
         sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
 
-        let window = match sdl2::video::Window::new("Sokoban", WindowPos::PosCentered, WindowPos::PosCentered, width, height, sdl2::video::OPENGL) {
-            Ok(window) => window,
-            Err(err) => panic!(format!("error on window init : {}", err))
-        };
-
-        let renderer = match sdl2::render::Renderer::from_window(window, sdl2::render::RenderDriverIndex::Auto, sdl2::render::ACCELERATED) {
-            Ok(renderer) => renderer,
-            Err(err) => panic!(format!("failed to create renderer: {}", err))
-        };
+        let window = sdl_context.window("Sokoban", width, height).position_centered().opengl().build().unwrap();
+        let renderer = window.renderer().build().unwrap();
 
         Display {
             renderer: renderer
@@ -48,8 +42,10 @@ impl Display {
     }
 
     fn load_texture_from_file(&self, filename: &str) -> sdl2::render::Texture {
-        let mut path = Path::new("./resources/sprites");
-        path.push(filename);
+        let mut strpath = String::new();
+        strpath.push_str("./resources/sprites/");
+        strpath.push_str(filename);
+        let path = Path::new(&strpath);
 
         let surface = match sdl2_image::LoadSurface::from_file(&path) {
             Ok(surface) => surface,
@@ -62,9 +58,9 @@ impl Display {
         return texture;
     }
 
-    pub fn clear_screen(&self) {
-        let _ = self.renderer.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
-        let _ = self.renderer.clear();
+    pub fn clear_screen(&mut self) {
+        let _ = self.renderer.drawer().set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
+        let _ = self.renderer.drawer().clear();
     }
 
     pub fn get_grid_textures(&self) -> HashMap<level::SquareType, Rc<sdl2::render::Texture>> {
@@ -83,7 +79,7 @@ impl Display {
         return grid_textures;
     }
 
-    pub fn render_grid(&self, grid: &Vec<Vec<level::Square>>, boxsize: i32, textures: & HashMap<level::SquareType, Rc<sdl2::render::Texture>>) {
+    pub fn render_grid(&mut self, grid: &Vec<Vec<level::Square>>, boxsize: i32, textures: & HashMap<level::SquareType, Rc<sdl2::render::Texture>>) {
         for row in grid.iter() {
             for square in row.iter() {
                 let t = textures.get(&square.square_type);
@@ -91,7 +87,7 @@ impl Display {
                     Some(texture) => {
                         let x: i32 = square.x as i32 * boxsize;
                         let y: i32 = square.y as i32 * boxsize;
-                        let _ = self.renderer.copy(&**texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
+                        let _ = self.renderer.drawer().copy(&**texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
                     },
                     None => {}
                 }
@@ -99,8 +95,8 @@ impl Display {
         }
     }
 
-    pub fn render_player(&self, texture: &sdl2::render::Texture, position: (usize, usize), boxsize: i32) {
+    pub fn render_player(&mut self, texture: &sdl2::render::Texture, position: (usize, usize), boxsize: i32) {
         let (x, y) = position;
-        let _ = self.renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x as i32 * boxsize, y as i32 * boxsize, boxsize, boxsize)));
+        let _ = self.renderer.drawer().copy(texture, None, Some(sdl2::rect::Rect::new(x as i32 * boxsize, y as i32 * boxsize, boxsize, boxsize)));
     }
 }

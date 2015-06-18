@@ -11,12 +11,12 @@ impl Control {
             request_move: (0, 0)
         }
     }
-    pub fn update(&mut self) {
-        'event : loop {
-            match sdl2::event::poll_event() {
-                sdl2::event::Event::Quit(_) => self.request_quit = true,
-                sdl2::event::Event::KeyDown(_, _, key, _, _, _) => {
-                    match key {
+    pub fn update(&mut self, sdl_context: &mut sdl2::Sdl) {
+        for event in sdl_context.event_pump().poll_iter() {
+            match event {
+                sdl2::event::Event::Quit {..} => self.request_quit = true,
+                sdl2::event::Event::KeyDown { keycode, .. }  => {
+                    match keycode {
                         sdl2::keycode::KeyCode::Escape => self.request_quit = true,
                         sdl2::keycode::KeyCode::Up => self.request_move = (0, -1),
                         sdl2::keycode::KeyCode::Down => self.request_move = (0, 1),
@@ -25,7 +25,6 @@ impl Control {
                         _ => ()
                     }
                 },
-                sdl2::event::Event::None => break 'event,
                 _ => {}
             }
         }

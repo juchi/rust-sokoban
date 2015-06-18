@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use std::io::BufRead;
 use std::io::BufReader;
 use std::fs::File;
 use std::rc::Rc;
+use std::path::Path;
 
 use display::Display;
 use sdl2;
@@ -20,22 +22,23 @@ pub enum SquareType {
     TARGETVALID = 4isize
 }
 
-pub struct Level {
+pub struct Level<'a> {
     columns: isize,
     rows: isize,
     boxsize: isize,
-    renderer: Display,
+    renderer: Display<'a>,
     textures: HashMap<SquareType, Rc<sdl2::render::Texture>>,
     player_textures: HashMap<player::Orientation, Rc<sdl2::render::Texture>>,
     grid: Vec<Vec<Square>>,
     start_position: (usize, usize)
 }
 
-impl Level {
-    pub fn new() -> Level {
-        let width = 20 * 34;
-        let height = 20 * 34;
-        let renderer = Display::new(width, height);
+impl<'a> Level<'a> {
+    pub fn new(sdl_context: & sdl2::Sdl) -> Level<'a> {
+        let width : u32 = 20 * 34;
+        let height : u32 = 20 * 34;
+
+        let renderer = Display::new(width, height, sdl_context);
 
         Level {
             columns: 20,
@@ -62,16 +65,15 @@ impl Level {
 
     fn get_level_content(&mut self) -> Vec<Vec<SquareType>> {
         let level_path = Path::new("./resources/level.txt");
-        let mut file = BufferedReader::new(File::open(&level_path));
-        let lines: Vec<String> = file.lines().map(|x| x.unwrap()).collect();
+        let buffer = BufReader::new(File::open(&level_path).unwrap());
+        let lines: Vec<String> = buffer.lines().map(|x| x.unwrap()).collect();
 
         let mut grid: Vec<Vec<SquareType>> = Vec::new();
         for line in lines.iter() {
             let mut row: Vec<SquareType> = Vec::new();
             let mut myline = line.clone();
             myline.pop();
-            let slice: &str = myline.as_slice();
-            for c in slice.chars() {
+            for c in myline.chars() {
                 if c == 'P' {
                     self.start_position = (row.len(), grid.len());
                 }
@@ -113,7 +115,7 @@ impl Level {
         return grid;
     }
 
-    pub fn update_display(&self, player: &Player) {
+    pub fn update_display(&mut self, player: &Player) {
         self.renderer.clear_screen();
         self.renderer.render_grid(&self.grid, self.boxsize as i32, &self.textures);
         let player_texture = match self.player_textures.get(&player.orientation) {
@@ -121,7 +123,7 @@ impl Level {
             None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation.clone() as isize))
         };
         self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
-        self.renderer.renderer.present();
+        self.renderer.renderer.drawer().present();
     }
 
     pub fn is_move_allowed(&self, player: &Player, movement: (i8, i8)) -> bool {

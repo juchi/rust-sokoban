@@ -4,30 +4,31 @@ use control;
 use level;
 use player::Player;
 
-pub struct Game {
+pub struct Game<'a> {
     ctrl: control::Control,
-    level: Option<level::Level>
+    level: Option<level::Level<'a>>,
+    sdl_context: sdl2::Sdl
 }
 
-impl Game {
-    pub fn new() -> Game {
+impl<'a> Game<'a> {
+    pub fn new() -> Game<'a> {
         Game {
             ctrl: control::Control::new(),
-            level: None
+            level: None,
+            sdl_context: sdl2::init().video().unwrap()
         }
     }
     pub fn start(&mut self) {
-        let mut level = level::Level::new();
+        let mut level = level::Level::new(&self.sdl_context);
         level.init();
         let player = Player::new(level.get_start_position());
         self.level = Some(level);
         self.run(player);
-        sdl2::quit();
     }
 
     pub fn run(&mut self, mut player: Player) {
         'main : loop {
-            self.ctrl.update();
+            self.ctrl.update(&mut self.sdl_context);
             if self.ctrl.request_quit {
                 break;
             }
