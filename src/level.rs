@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::io::BufReader;
 use std::fs::File;
-use std::num::FromPrimitive;
 use std::rc::Rc;
 
 use display::Display;
@@ -10,7 +9,6 @@ use player;
 use player::Player;
 
 #[derive(Clone)]
-#[derive(FromPrimitive)]
 #[derive(Hash)]
 #[derive(Eq)]
 #[derive(PartialEq)]
@@ -81,10 +79,15 @@ impl Level {
                     Some(d) => d as isize,
                     None => 0isize
                 };
-                let square_type = match FromPrimitive::from_int(code) {
-                    Some(t) => t,
-                    None => SquareType::EMPTY
+                let square_type = match code {
+                    0 => SquareType::EMPTY,
+                    1 => SquareType::WALL,
+                    2 => SquareType::BOX,
+                    3 => SquareType::TARGET,
+                    4 => SquareType::TARGETVALID,
+                    _ => SquareType::EMPTY
                 };
+
                 row.push(square_type);
             }
             grid.push(row);
