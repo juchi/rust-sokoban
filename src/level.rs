@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::io::BufferedReader;
-use std::io::File;
+use std::io::BufReader;
+use std::fs::File;
 use std::num::FromPrimitive;
 use std::rc::Rc;
 
@@ -15,11 +15,11 @@ use player::Player;
 #[derive(Eq)]
 #[derive(PartialEq)]
 pub enum SquareType {
-    EMPTY = 0is,
-    WALL = 1is,
-    BOX = 2is,
-    TARGET = 3is,
-    TARGETVALID = 4is
+    EMPTY = 0isize,
+    WALL = 1isize,
+    BOX = 2isize,
+    TARGET = 3isize,
+    TARGETVALID = 4isize
 }
 
 pub struct Level {
@@ -79,7 +79,7 @@ impl Level {
                 }
                 let code: isize = match c.to_digit(4) {
                     Some(d) => d as isize,
-                    None => 0is
+                    None => 0isize
                 };
                 let square_type = match FromPrimitive::from_int(code) {
                     Some(t) => t,
@@ -94,11 +94,11 @@ impl Level {
 
     fn create_grid(content: Vec<Vec<SquareType>>) -> Vec<Vec<Square>> {
         let mut grid: Vec<Vec<Square>> = Vec::new();
-        let mut i = 0is;
+        let mut i = 0isize;
 
         for content_row in content.iter() {
             let mut row: Vec<Square> = Vec::new();
-            let mut j = 0is;
+            let mut j = 0isize;
             for square_type in content_row.iter() {
                 let s = create_square(j, i, square_type.clone());
                 row.push(s);

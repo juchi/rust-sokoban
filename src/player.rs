@@ -4,10 +4,10 @@
 #[derive(Eq)]
 #[derive(PartialEq)]
 pub enum Orientation {
-    UP = 0is,
-    DOWN = 1is,
-    LEFT = 2is,
-    RIGHT = 3is
+    UP = 0isize,
+    DOWN = 1isize,
+    LEFT = 2isize,
+    RIGHT = 3isize
 }
 pub struct Player {
     position: (usize, usize),
