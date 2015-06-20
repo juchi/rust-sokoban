@@ -1,6 +1,5 @@
 use std::collections::HashMap;
-use std::io::BufRead;
-use std::io::BufReader;
+use std::io::{BufRead, BufReader };
 use std::fs::File;
 use std::rc::Rc;
 use std::path::Path;
@@ -55,7 +54,11 @@ impl<'a> Level<'a> {
     pub fn init(&mut self) {
         self.textures = self.renderer.get_grid_textures();
         self.player_textures = self.renderer.get_player_textures();
-        let grid_content: Vec<Vec<SquareType>> = self.get_level_content();
+
+        let level_path = Path::new("./resources/level.txt");
+        let buffer : BufReader<File> = BufReader::new(File::open(level_path).unwrap());
+        let lines: Vec<String> = buffer.lines().map(|x| x.unwrap()).collect();
+        let grid_content: Vec<Vec<SquareType>> = self.get_level_content(lines);
         self.grid = Level::create_grid(grid_content);
     }
 
@@ -63,11 +66,7 @@ impl<'a> Level<'a> {
         self.start_position
     }
 
-    fn get_level_content(&mut self) -> Vec<Vec<SquareType>> {
-        let level_path = Path::new("./resources/level.txt");
-        let buffer = BufReader::new(File::open(&level_path).unwrap());
-        let lines: Vec<String> = buffer.lines().map(|x| x.unwrap()).collect();
-
+    fn get_level_content(&mut self, lines: Vec<String>) -> Vec<Vec<SquareType>> {
         let mut grid: Vec<Vec<SquareType>> = Vec::new();
         for line in lines.iter() {
             let mut row: Vec<SquareType> = Vec::new();
