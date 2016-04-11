@@ -15,7 +15,7 @@ impl<'a> Game<'a> {
         Game {
             ctrl: control::Control::new(),
             level: None,
-            sdl_context: sdl2::init().video().unwrap()
+            sdl_context: sdl2::init().unwrap()
         }
     }
     pub fn start(&mut self) {

@@ -11,14 +11,14 @@ use level;
 use player;
 
 pub struct Display<'a> {
-    pub renderer: sdl2::render::Renderer<'a>
+    pub renderer: Renderer<'a>
 }
 
 impl<'a> Display<'a> {
     pub fn new(width: u32, height: u32, sdl_context: & Sdl) -> Display<'a> {
-        sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
+        let _ = sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
 
-        let window = sdl_context.window("Sokoban", width, height).position_centered().opengl().build().unwrap();
+        let window = sdl_context.video().unwrap().window("Sokoban", width, height).position_centered().opengl().build().unwrap();
         let renderer = window.renderer().build().unwrap();
 
         Display {
@@ -47,20 +47,21 @@ impl<'a> Display<'a> {
         strpath.push_str(filename);
         let path = Path::new(&strpath);
 
-        let surface = match sdl2_image::LoadSurface::from_file(&path) {
+        let surface : sdl2::surface::Surface = match sdl2_image::LoadSurface::from_file(&path) {
             Ok(surface) => surface,
             Err(err) => panic!(format!("error on image load {}", err))
         };
         let texture = match self.renderer.create_texture_from_surface(&surface) {
             Ok(texture) => texture,
-            Err(err) => panic!(format!("error on texture creation {}", err))
+            Err(sdl2::render::TextureValueError::SdlError(err)) => panic!(format!("error on texture creation {}", err)),
+            Err(_) => panic!("Unknown error during texture creation")
         };
         return texture;
     }
 
     pub fn clear_screen(&mut self) {
-        let _ = self.renderer.drawer().set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
-        let _ = self.renderer.drawer().clear();
+        let _ = self.renderer.set_draw_color(sdl2::pixels::Color::RGB(255, 255, 255));
+        let _ = self.renderer.clear();
     }
 
     pub fn get_grid_textures(&self) -> HashMap<level::SquareType, Rc<sdl2::render::Texture>> {
@@ -79,15 +80,15 @@ impl<'a> Display<'a> {
         return grid_textures;
     }
 
-    pub fn render_grid(&mut self, grid: &Vec<Vec<level::Square>>, boxsize: i32, textures: & HashMap<level::SquareType, Rc<sdl2::render::Texture>>) {
+    pub fn render_grid(&mut self, grid: &Vec<Vec<level::Square>>, boxsize: u32, textures: & HashMap<level::SquareType, Rc<sdl2::render::Texture>>) {
         for row in grid.iter() {
             for square in row.iter() {
                 let t = textures.get(&square.square_type);
                 match t {
                     Some(texture) => {
-                        let x: i32 = square.x as i32 * boxsize;
-                        let y: i32 = square.y as i32 * boxsize;
-                        let _ = self.renderer.drawer().copy(&**texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
+                        let x: i32 = square.x as i32 * boxsize as i32;
+                        let y: i32 = square.y as i32 * boxsize as i32;
+                        let _ = self.renderer.copy(&**texture, None, Some(sdl2::rect::Rect::new(x, y, boxsize, boxsize)));
                     },
                     None => {}
                 }
@@ -95,8 +96,8 @@ impl<'a> Display<'a> {
         }
     }
 
-    pub fn render_player(&mut self, texture: &sdl2::render::Texture, position: (usize, usize), boxsize: i32) {
+    pub fn render_player(&mut self, texture: &sdl2::render::Texture, position: (usize, usize), boxsize: u32) {
         let (x, y) = position;
-        let _ = self.renderer.drawer().copy(texture, None, Some(sdl2::rect::Rect::new(x as i32 * boxsize, y as i32 * boxsize, boxsize, boxsize)));
+        let _ = self.renderer.copy(texture, None, Some(sdl2::rect::Rect::new(x as i32 * boxsize as i32, y as i32 * boxsize as i32, boxsize, boxsize)));
     }
 }

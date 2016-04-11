@@ -24,7 +24,7 @@ pub enum SquareType {
 pub struct Level<'a> {
     columns: isize,
     rows: isize,
-    boxsize: isize,
+    boxsize: u32,
     renderer: Display<'a>,
     textures: HashMap<SquareType, Rc<sdl2::render::Texture>>,
     player_textures: HashMap<player::Orientation, Rc<sdl2::render::Texture>>,
@@ -116,13 +116,13 @@ impl<'a> Level<'a> {
 
     pub fn update_display(&mut self, player: &Player) {
         self.renderer.clear_screen();
-        self.renderer.render_grid(&self.grid, self.boxsize as i32, &self.textures);
+        self.renderer.render_grid(&self.grid, self.boxsize, &self.textures);
         let player_texture = match self.player_textures.get(&player.orientation) {
             Some(t) => t,
             None => panic!(format!("error on texture retrieval for player orientation {}", player.orientation.clone() as isize))
         };
-        self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize as i32);
-        self.renderer.renderer.drawer().present();
+        self.renderer.render_player(&**player_texture, player.get_position(), self.boxsize);
+        self.renderer.renderer.present();
     }
 
     pub fn is_move_allowed(&self, player: &Player, movement: (i8, i8)) -> bool {
